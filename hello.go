@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"strings"
+
+	//"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -13,11 +18,12 @@ const delay = 5
 func main() {
 
 	exibeIntroducao()
+	lerSitesDoArquivo()
 	for {
 		exibeMenu()
-		comando := lerComando()
+		command := lerComando()
 
-		switch comando {
+		switch command {
 		case 1:
 			iniciarMonitoramento()
 		case 2:
@@ -33,10 +39,10 @@ func main() {
 }
 
 func exibeIntroducao() {
-	nome := "Wesley"
-	versao := 1.1
-	fmt.Println("Olá sr.", nome)
-	fmt.Println("Este programa está na versão", versao)
+	name := "Wesley"
+	version := 1.1
+	fmt.Println("Olá sr.", name)
+	fmt.Println("Este programa está na versão", version)
 }
 
 func exibeMenu() {
@@ -55,11 +61,13 @@ func lerComando() int {
 
 func iniciarMonitoramento() {
 
-	sites := []string{
+	/*sites := []string{
 		"https://random-status-code.herokuapp.com/",
 		"https://www.alura.com.br",
 		"https://www.caelum.com.br",
-	}
+	}*/
+
+	sites := lerSitesDoArquivo()
 
 	for i := 0; i < monitoramentos; i++ {
 		for i, site := range sites {
@@ -73,10 +81,39 @@ func iniciarMonitoramento() {
 }
 
 func testaSite(site string) {
-	resp, _ := http.Get(site)
-	if resp.StatusCode == 200 {
+	response, err := http.Get(site)
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", nil)
+	}
+	if response.StatusCode == 200 {
 		fmt.Println("Site", site, "foi carregado com sucesso")
 	} else {
-		fmt.Println("Site", site, "está cpm problemas. Status code:", resp.StatusCode)
+		fmt.Println("Site", site, "está cpm problemas. Status code:", response.StatusCode)
 	}
+}
+
+func lerSitesDoArquivo() []string {
+	var sites []string
+	file, err := os.Open("sites.txt")
+	//file, err := ioutil.ReadFile("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", nil)
+	}
+
+	leitor := bufio.NewReader(file)
+
+	for {
+		line, err := leitor.ReadString('\n')
+		line = strings.TrimSpace(line)
+
+		sites = append(sites, line)
+
+		if err == io.EOF {
+			break
+		}
+	}
+	fmt.Println(sites)
+	file.Close()
+	return sites
 }
