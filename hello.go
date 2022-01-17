@@ -101,10 +101,10 @@ func lerSitesDoArquivo() []string {
 		fmt.Println("Ocorreu um erro:", nil)
 	}
 
-	leitor := bufio.NewReader(file)
+	reader := bufio.NewReader(file)
 
 	for {
-		line, err := leitor.ReadString('\n')
+		line, err := reader.ReadString('\n')
 		line = strings.TrimSpace(line)
 
 		sites = append(sites, line)
